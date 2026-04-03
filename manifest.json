@@ -1,13 +1,15 @@
 {
-  "id": "ase-core",
-  "name": "Ase Core // Kagaya OS",
-  "version": "2.0.0",
-  "minNoctaliaVersion": "3.6.0",
-  "author": "SourceAura (Architect)",
-  "description": "Autonomous Security Engine & Ubuyashiki Omnibar",
-  "tags": ["AI", "HUD", "System"],
-  "entryPoints": {
-    "barWidget": "UbuyashikiOmnibar.qml",
-    "main": "AseDaemon.qml"
-  }
+    "id": "ase-core",
+    "name": "ASE Guardian Node",
+    "version": "1.0.0",
+    "description": "Monitors the vitals of the local Autonomous Security Engine.",
+    "author": "SourceAura",
+    "main": "AseDaemon.qml",
+    "barWidgets": [
+        {
+            "id": "ase-guardian",
+            "name": "ASE Guardian",
+            "component": "GuardianNode.qml"
+        }
+    ]
 }
