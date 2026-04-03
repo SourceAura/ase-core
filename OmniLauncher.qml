@@ -18,72 +18,96 @@ Window {
     width: 750
     height: 64
     
-    // Critical for Wayland to identify it for Niri rules
+    // Niri will now successfully match this exact string
     title: "ase-omnilauncher" 
     
     color: "transparent"
-    flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.ToolTip
+    
+    // THE FIX: Qt.Dialog allows Wayland to grant keyboard focus. 
+    // Removed Qt.ToolTip which was blocking the input box.
+    flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
     visible: opacity > 0
     opacity: AseState.omniVisible ? 1.0 : 0.0
-    scale: AseState.omniVisible ? 1.0 : 0.95
-    
     Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-    Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack; overshoot: 1.05 } }
 
     onOpacityChanged: {
-        if (opacity === 1.0) sigilInput.forceActiveFocus()
-        if (opacity === 0.0) sigilInput.text = ""
+        if (opacity === 1.0) {
+            // Force the window and the input to grab Wayland focus
+            omniRoot.requestActivate()
+            sigilInput.forceActiveFocus()
+        }
+        if (opacity === 0.0) {
+            sigilInput.text = ""
+        }
     }
 
-    Rectangle {
-        anchors.fill: parent
-        color: Qt.rgba(0.04, 0.05, 0.08, 0.9)
-        border.color: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.6)
-        border.width: 1.5
-        radius: 12
+    Item {
+        anchors.centerIn: parent
+        width: parent.width
+        height: parent.height
         
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.15)
-            shadowBlur: 40
-        }
+        scale: AseState.omniVisible ? 1.0 : 0.95
+        Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
 
-        // Input Field
-        TextInput {
-            id: sigilInput
+        // The Glass Shell
+        Rectangle {
             anchors.fill: parent
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-            verticalAlignment: TextInput.AlignVCenter
+            color: Qt.rgba(0.04, 0.05, 0.08, 0.9)
+            border.color: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.6)
+            border.width: 1.5
+            radius: 12
             
-            color: AseState.themeGlow
-            font.family: "monospace"
-            font.pixelSize: 22
-            selectionColor: AseState.themeGlow
-            
-            Text {
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.15)
+                shadowBlur: 40
+                shadowHorizontalOffset: 0
+                shadowVerticalOffset: 0
+            }
+
+            // The Input Field
+            TextInput {
+                id: sigilInput
                 anchors.fill: parent
-                verticalAlignment: Text.AlignVCenter
-                text: "Cast Sigil..."
-                color: Qt.rgba(1, 1, 1, 0.2)
+                anchors.leftMargin: 24
+                anchors.rightMargin: 24
+                verticalAlignment: TextInput.AlignVCenter
+                
+                color: AseState.themeGlow
                 font.family: "monospace"
                 font.pixelSize: 22
-                font.italic: true
-                visible: !sigilInput.text && !sigilInput.activeFocus
-            }
-            
-            Keys.onEscapePressed: AseState.omniVisible = false
-            
-            onAccepted: {
-                // Test Commands
-                if (text === "/strike") AseState.hazardLevel = "rose"
-                else if (text === "/forge") AseState.hazardLevel = "amber"
-                else if (text === "/clear") AseState.hazardLevel = "cyan"
-                else AseState.kasugaiMessage = text.toUpperCase()
+                selectionColor: AseState.themeGlow
                 
-                AseState.omniVisible = false
+                // Ensure mouse clicks inside the box grant focus manually if needed
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.IBeamCursor
+                    onClicked: sigilInput.forceActiveFocus()
+                }
+                
+                Text {
+                    anchors.fill: parent
+                    verticalAlignment: Text.AlignVCenter
+                    text: "Cast Sigil..."
+                    color: Qt.rgba(1, 1, 1, 0.3) // Bumped opacity slightly so it's easier to see
+                    font.family: "monospace"
+                    font.pixelSize: 22
+                    font.italic: true
+                    visible: !sigilInput.text && !sigilInput.activeFocus
+                }
+                
+                Keys.onEscapePressed: AseState.omniVisible = false
+                
+                onAccepted: {
+                    if (text === "/strike") AseState.hazardLevel = "rose"
+                    else if (text === "/forge") AseState.hazardLevel = "amber"
+                    else if (text === "/clear") AseState.hazardLevel = "cyan"
+                    else AseState.kasugaiMessage = text.toUpperCase()
+                    
+                    AseState.omniVisible = false
+                }
             }
         }
     }

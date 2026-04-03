@@ -47,10 +47,21 @@ Rectangle {
             // 1. Kagaya Branding & Status
             RowLayout {
                 spacing: 10
+                
+                // The Glowing Status LED
                 Rectangle {
                     width: 8; height: 8; radius: 4
                     color: AseState.themeGlow
-                    boxShadow: "0 0 10px " + AseState.themeGlow
+                    
+                    // Native QML Glow implementation
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        shadowEnabled: true
+                        shadowColor: AseState.themeGlow
+                        shadowBlur: 10
+                        shadowHorizontalOffset: 0
+                        shadowVerticalOffset: 0
+                    }
                     
                     SequentialAnimation on opacity {
                         loops: Animation.Infinite
@@ -58,6 +69,7 @@ Rectangle {
                         NumberAnimation { to: 1.0; duration: 2000; easing.type: Easing.InOutSine }
                     }
                 }
+                
                 Text {
                     text: "ASE // KAGAYA"
                     color: "white"
