@@ -95,7 +95,7 @@ Item {
                 if (log.length > 6) log = log.slice(0, 6)
                 root.healthLog = log
             }
-            req.open("GET", "http://127.0.0.1:8000/api/v1/health", true)
+            req.open("GET", "http://127.0.0.1:8000/health", true)
             req.onerror = function() {
                 root.daemonState = "dead"
                 root.lastLatencyMs = -1
