@@ -2,9 +2,7 @@
  * PROJECT: Ase Core // Kagaya OS
  * AUTHOR: SourceAura (Architect)
  * COMPONENT: OmniLauncher Command Palette
- * LORE: The Macro Sigil Engine. A direct, high-priority neural link to 
- * the Ase backend. Allows the Architect to cast commands, query 
- * intelligence, and execute strikes instantly from any workspace.
+ * LORE: The Macro Sigil Engine.
  * ===================================================================== */
 
 import QtQuick
@@ -15,17 +13,21 @@ import "."
 
 Window {
     id: omniRoot
+    
+    // Explicitly lock geometry so Niri cannot squash the window to 0x0
     width: 750
     height: 64
+    minimumWidth: 750
+    minimumHeight: 64
+    maximumWidth: 750
+    maximumHeight: 64
     
-    // Niri will now successfully match this exact string
     title: "ase-omnilauncher" 
-    
     color: "transparent"
     
-    // THE FIX: Qt.Dialog allows Wayland to grant keyboard focus. 
-    // Removed Qt.ToolTip which was blocking the input box.
-    flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+    // THE FIX: Removed Qt.Dialog to prevent compositor crashes.
+    // Standard XDG-Toplevel floating flags.
+    flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
     visible: opacity > 0
     opacity: AseState.omniVisible ? 1.0 : 0.0
@@ -33,7 +35,6 @@ Window {
 
     onOpacityChanged: {
         if (opacity === 1.0) {
-            // Force the window and the input to grab Wayland focus
             omniRoot.requestActivate()
             sigilInput.forceActiveFocus()
         }
@@ -43,31 +44,24 @@ Window {
     }
 
     Item {
-        anchors.centerIn: parent
-        width: parent.width
-        height: parent.height
-        
+        anchors.fill: parent
         scale: AseState.omniVisible ? 1.0 : 0.95
         Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
 
-        // The Glass Shell
         Rectangle {
             anchors.fill: parent
-            color: Qt.rgba(0.04, 0.05, 0.08, 0.9)
-            border.color: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.6)
+            color: Qt.rgba(0.04, 0.05, 0.08, 0.95) // Darkened slightly for contrast
+            border.color: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.8)
             border.width: 1.5
             radius: 12
             
             layer.enabled: true
             layer.effect: MultiEffect {
                 shadowEnabled: true
-                shadowColor: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.15)
-                shadowBlur: 40
-                shadowHorizontalOffset: 0
-                shadowVerticalOffset: 0
+                shadowColor: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.2)
+                shadowBlur: 30
             }
 
-            // The Input Field
             TextInput {
                 id: sigilInput
                 anchors.fill: parent
@@ -80,7 +74,6 @@ Window {
                 font.pixelSize: 22
                 selectionColor: AseState.themeGlow
                 
-                // Ensure mouse clicks inside the box grant focus manually if needed
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.IBeamCursor
@@ -91,7 +84,7 @@ Window {
                     anchors.fill: parent
                     verticalAlignment: Text.AlignVCenter
                     text: "Cast Sigil..."
-                    color: Qt.rgba(1, 1, 1, 0.3) // Bumped opacity slightly so it's easier to see
+                    color: Qt.rgba(1, 1, 1, 0.4) // High contrast placeholder
                     font.family: "monospace"
                     font.pixelSize: 22
                     font.italic: true

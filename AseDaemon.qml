@@ -15,9 +15,9 @@ Item {
     id: daemonRoot
     
     // 1. Mount the Command Palette into memory
-    OmniLauncher {
-        id: launcher
-    }
+    // OmniLauncher {
+    //     id: launcher
+    // }
 
     // 2. The HUD Overlay (Click-through screen aesthetics)
     Window {
