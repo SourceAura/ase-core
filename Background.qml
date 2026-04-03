@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import "." // CRITICAL FIX: Imports the AseState singleton
 
 Item {
     id: desktopRoot
@@ -40,8 +41,8 @@ Item {
         }
     }
 
-   // Phase 2 Mount: The Abyssal Terminal
-    AbyssalTerminal {
+    // Phase 2 Mount: CRITICAL FIX - Renamed to match AbyssalPanel.qml
+    AbyssalPanel {
         anchors.centerIn: parent
         z: 100
         
@@ -51,9 +52,10 @@ Item {
         // Tracer: Log when the terminal receives the signal
         onOpacityChanged: console.log("[ASE TERMINAL] Opacity updating to:", opacity)
 
-        // Keep it simple for debugging: Just toggle opacity
+        // Visibility Binding
         opacity: AseState.terminalVisible ? 1.0 : 0.0
         scale: AseState.terminalVisible ? 1.0 : 0.95
+        visible: opacity > 0 // Prevents the invisible panel from blocking clicks
         
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutQuad }
