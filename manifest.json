@@ -1,15 +1,10 @@
 {
     "id": "ase-core",
-    "name": "ASE Guardian Node",
+    "name": "ASE Guardian",
     "version": "1.0.0",
     "description": "Monitors the vitals of the local Autonomous Security Engine.",
     "author": "SourceAura",
-    "main": "AseDaemon.qml",
-    "barWidgets": [
-        {
-            "id": "ase-guardian",
-            "name": "ASE Guardian",
-            "component": "GuardianNode.qml"
-        }
-    ]
+    "entryPoints": {
+        "barWidget": "GuardianNode.qml"
+    }
 }
