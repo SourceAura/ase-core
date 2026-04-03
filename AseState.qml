@@ -1,65 +1,33 @@
+/* =====================================================================
+ * PROJECT: Ase Core // Kagaya OS
+ * AUTHOR: SourceAura (Architect)
+ * COMPONENT: Central Nervous System (Singleton)
+ * LORE: The 'Kagaya' core acts as the orchestrator for the Hashira applets.
+ * It maintains the global threat resonance (Hazard Level) and manages
+ * the telepathic links (WebSockets) to the Python backend.
+ * ===================================================================== */
+
 pragma Singleton
 import QtQuick
-import QtWebSockets // Required for native QML WebSockets
 
 QtObject {
-    id: stateRoot
+    id: root
     
-    // Existing States
-    property bool terminalVisible: false
-    property string activeApplet: "none"
-    property string hazardLevel: "cyan"
-    property bool isNemotronScanning: false
+    // UI Visibility States
     property bool omniVisible: false
+    property bool hudActive: true
     
-    // --- NEW: Live Intelligence Data ---
-    property string lastLogMessage: "NEURAL LINK ESTABLISHED"
-    property var activeThreats: []
-
-    // --- The WebSocket Pipeline ---
-    property WebSocket neuralSocket: WebSocket {
-        url: "ws://localhost:8000/ws" // Update to your Python backend WS port
-        active: true
-        
-        onStatusChanged: {
-            if (status === WebSocket.Error) {
-                console.log("[ASE NETWORK] Error: " + errorString)
-                stateRoot.hazardLevel = "amber"
-            } else if (status === WebSocket.Open) {
-                console.log("[ASE NETWORK] Neural Link Active")
-                stateRoot.hazardLevel = "cyan"
-            } else if (status === WebSocket.Closed) {
-                console.log("[ASE NETWORK] Link Severed")
-            }
-        }
-        
-        onTextMessageReceived: (message) => {
-            try {
-                let payload = JSON.parse(message);
-                
-                // Route the data to the QML state based on your backend structure
-                if (payload.type === "HAZARD_UPDATE") {
-                    stateRoot.hazardLevel = payload.level;
-                } else if (payload.type === "LOG_EVENT") {
-                    stateRoot.lastLogMessage = payload.message;
-                } else if (payload.type === "THREAT_DETECTED") {
-                    // Flash the reticle and update the array
-                    stateRoot.isNemotronScanning = true;
-                    stateRoot.activeThreats.push(payload.data);
-                }
-            } catch (e) {
-                console.log("[ASE NETWORK] Payload Parse Error:", e);
-            }
-        }
-    }
+    // Intelligence States
+    property string activeApplet: "none"
+    property string hazardLevel: "cyan" // "cyan" (Safe), "amber" (Forge), "rose" (Strike)
+    property bool isNemotronScanning: false
     
-    // Helper function for QML UI to send commands back to Python
-    function sendCommand(directive) {
-        if (neuralSocket.status === WebSocket.Open) {
-            neuralSocket.sendTextMessage(JSON.stringify({
-                type: "DIRECTIVE",
-                command: directive
-            }));
-        }
-    }
+    // System Metrics
+    property string kasugaiMessage: "AWAITING DIRECTIVE"
+    property real cpuLoad: 12.4
+    property real memLoad: 34.2
+    
+    // Dynamic Thematic Resonance
+    property color themeGlow: hazardLevel === "rose" ? "#f43f5e" :
+                              hazardLevel === "amber" ? "#fbbf24" : "#00ffaa"
 }

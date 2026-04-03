@@ -1,13 +1,13 @@
 {
   "id": "ase-core",
-  "name": "Ase Core // Kagaya",
-  "version": "1.0.0",
+  "name": "Ase Core // Kagaya OS",
+  "version": "2.0.0",
   "minNoctaliaVersion": "3.6.0",
-  "author": "Architect",
-  "description": "Ubuyashiki Omnibar and Etheric Environment",
-  "tags": ["Bar", "Desktop", "System"],
+  "author": "SourceAura (Architect)",
+  "description": "Autonomous Security Engine & Ubuyashiki Omnibar",
+  "tags": ["AI", "HUD", "System"],
   "entryPoints": {
-    "barWidget": "BarWidget.qml",
-    "main": "Background.qml"
+    "barWidget": "UbuyashikiOmnibar.qml",
+    "main": "AseDaemon.qml"
   }
 }

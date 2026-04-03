@@ -1,3 +1,12 @@
+/* =====================================================================
+ * PROJECT: Ase Core // Kagaya OS
+ * AUTHOR: SourceAura (Architect)
+ * COMPONENT: OmniLauncher Command Palette
+ * LORE: The Macro Sigil Engine. A direct, high-priority neural link to 
+ * the Ase backend. Allows the Architect to cast commands, query 
+ * intelligence, and execute strikes instantly from any workspace.
+ * ===================================================================== */
+
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
@@ -6,94 +15,74 @@ import "."
 
 Window {
     id: omniRoot
-    width: 700
+    width: 750
     height: 64
     
-    // Position it elegantly in the upper-third of the screen
-    x: (Screen.width - width) / 2
-    y: (Screen.height * 0.25) - (height / 2)
+    // Critical for Wayland to identify it for Niri rules
+    title: "ase-omnilauncher" 
     
     color: "transparent"
-    
-    // Force it to float above all other OS windows
-    flags: Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+    flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.ToolTip
 
-    // Animation Binding
     visible: opacity > 0
     opacity: AseState.omniVisible ? 1.0 : 0.0
     scale: AseState.omniVisible ? 1.0 : 0.95
     
     Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-    Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack; overshoot: 1.1 } }
+    Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack; overshoot: 1.05 } }
 
-    // Auto-focus the input box when summoned
     onOpacityChanged: {
-        if (opacity === 1.0) omniInput.forceActiveFocus()
-        if (opacity === 0.0) omniInput.text = "" // Purge on close
+        if (opacity === 1.0) sigilInput.forceActiveFocus()
+        if (opacity === 0.0) sigilInput.text = ""
     }
 
-    // Thematic Resonance (Matches the Omnibar)
-    property color glowColor: AseState.hazardLevel === "rose" ? "#f43f5e" :
-                              AseState.hazardLevel === "amber" ? "#fbbf24" : "#00ffaa"
-
-    // The Glass Shell
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(0.04, 0.05, 0.08, 0.85) // Dark Ethereal Glass
-        border.color: Qt.rgba(glowColor.r, glowColor.g, glowColor.b, 0.4)
-        border.width: 1
+        color: Qt.rgba(0.04, 0.05, 0.08, 0.9)
+        border.color: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.6)
+        border.width: 1.5
         radius: 12
         
         layer.enabled: true
         layer.effect: MultiEffect {
             shadowEnabled: true
-            shadowColor: Qt.rgba(glowColor.r, glowColor.g, glowColor.b, 0.2)
-            shadowBlur: 30
+            shadowColor: Qt.rgba(AseState.themeGlow.r, AseState.themeGlow.g, AseState.themeGlow.b, 0.15)
+            shadowBlur: 40
         }
 
-        // The AI Input Field
+        // Input Field
         TextInput {
-            id: omniInput
+            id: sigilInput
             anchors.fill: parent
             anchors.leftMargin: 24
             anchors.rightMargin: 24
             verticalAlignment: TextInput.AlignVCenter
             
-            color: glowColor
+            color: AseState.themeGlow
             font.family: "monospace"
-            font.pixelSize: 20
-            font.bold: true
-            selectionColor: glowColor
+            font.pixelSize: 22
+            selectionColor: AseState.themeGlow
             
             Text {
                 anchors.fill: parent
                 verticalAlignment: Text.AlignVCenter
-                text: "Awaiting Directive..."
-                color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
+                text: "Cast Sigil..."
+                color: Qt.rgba(1, 1, 1, 0.2)
                 font.family: "monospace"
-                font.pixelSize: 20
+                font.pixelSize: 22
                 font.italic: true
-                visible: !omniInput.text && !omniInput.activeFocus
+                visible: !sigilInput.text && !sigilInput.activeFocus
             }
             
-            // Execute Command & Auto-Dismiss
+            Keys.onEscapePressed: AseState.omniVisible = false
+            
             onAccepted: {
-
-                AseState.sendCommand(text)
-                AseState.omniVisible = false
-                text = ""
+                // Test Commands
+                if (text === "/strike") AseState.hazardLevel = "rose"
+                else if (text === "/forge") AseState.hazardLevel = "amber"
+                else if (text === "/clear") AseState.hazardLevel = "cyan"
+                else AseState.kasugaiMessage = text.toUpperCase()
                 
-                console.log("[OMNI ENGINE] Executing:", text)
-                
-                // Example local routing (Connect this to your actual Ase API later)
-                if (text.startsWith("/strike")) AseState.hazardLevel = "rose"
-                else if (text.startsWith("/clear")) AseState.hazardLevel = "cyan"
-                
-                AseState.omniVisible = false // Dismiss after command
-            }
-
-            // Press Escape to dismiss
-            Keys.onEscapePressed: {
                 AseState.omniVisible = false
             }
         }
